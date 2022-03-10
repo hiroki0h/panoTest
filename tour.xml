@@ -1,0 +1,188 @@
+﻿<krpano version="1.20.9" title="Virtual Tour">
+
+	<include url="skin/vtourskin.xml" />
+
+	<!-- customize skin settings: maps, gyro, webvr, thumbnails, tooltips, layout, design, ... -->
+	<skin_settings maps="false"
+				   maps_type="google"
+				   maps_bing_api_key=""
+				   maps_google_api_key=""
+				   maps_zoombuttons="false"
+				   maps_loadonfirstuse="true"
+				   gyro="true"
+				   gyro_keeplookingdirection="false"
+				   webvr="true"
+				   webvr_keeplookingdirection="true"
+				   webvr_prev_next_hotspots="true"
+				   autotour="false"
+				   littleplanetintro="false"
+				   followmousecontrol="false"
+				   title="true"
+				   thumbs="true"
+				   thumbs_width="120" thumbs_height="80" thumbs_padding="10" thumbs_crop="0|40|240|160"
+				   thumbs_opened="false"
+				   thumbs_text="false"
+				   thumbs_dragging="true"
+				   thumbs_onhoverscrolling="false"
+				   thumbs_scrollbuttons="false"
+				   thumbs_scrollindicator="false"
+				   thumbs_loop="false"
+				   tooltips_buttons="false"
+				   tooltips_thumbs="false"
+				   tooltips_hotspots="false"
+				   tooltips_mapspots="false"
+				   deeplinking="false"
+				   loadscene_flags="MERGE"
+				   loadscene_blend="OPENBLEND(0.5, 0.0, 0.75, 0.05, linear)"
+				   loadscene_blend_prev="SLIDEBLEND(0.5, 180, 0.75, linear)"
+				   loadscene_blend_next="SLIDEBLEND(0.5,   0, 0.75, linear)"
+				   loadingtext=""
+				   layout_width="100%"
+				   layout_maxwidth="814"
+				   controlbar_width="-24"
+				   controlbar_height="40"
+				   controlbar_offset="20"
+				   controlbar_offset_closed="-40"
+				   controlbar_overlap.no-fractionalscaling="10"
+				   controlbar_overlap.fractionalscaling="0"
+				   design_skin_images="vtourskin.png"
+				   design_bgcolor="0x2D3E50"
+				   design_bgalpha="0.8"
+				   design_bgborder="0"
+				   design_bgroundedge="1"
+				   design_bgshadow="0 4 10 0x000000 0.3"
+				   design_thumbborder_bgborder="3 0xFFFFFF 1.0"
+				   design_thumbborder_padding="2"
+				   design_thumbborder_bgroundedge="0"
+				   design_text_css="color:#FFFFFF; font-family:Arial;"
+				   design_text_shadow="1"
+	/>
+
+	<!-- startup action - load the first scene -->
+	<action name="startup" autorun="onstart">
+		if(startscene === null OR !scene[get(startscene)], copy(startscene,scene[0].name); );
+		loadscene(get(startscene), null, MERGE);
+		<!-- 컨드롤바 숨기기 -->
+		skin_hideskin('instant');
+		if(startactions !== null, startactions() );
+	</action>
+
+	<action name="openBox">
+		if(get(name) === "navigations_mo",
+			addlayer(navigation_bg);
+			set(layer[navigation_bg].type, container);
+			set(layer[navigation_bg].zorder, 2);
+			set(layer[navigation_bg].safearea, false);
+			set(layer[navigation_bg].align, lefttop);
+			set(layer[navigation_bg].width, 100%);
+			set(layer[navigation_bg].height, 100%);
+			set(layer[navigation_bg].bgcolor, 0x3D4249);
+			set(layer[navigation_bg].bgalpha, 1);
+			set(layer[navigation_bg].bgcapture, true);
+			set(layer[navigation_bg].handcursor, false);
+			set(layer[navigation_mo].visible, true); tween(layer[navigation_mo].alpha, 1 ); tween(layer[navigation_mo].zorder, 4 );
+			,
+			set(layer[navigation_pc].visible, true); tween(layer[navigation_pc].alpha, 1 ); tween(layer[navigation_pc].zorder, 4 );
+		);
+	</action>
+
+	<action name="closeBox">
+		removelayer(navigation_bg);
+		set(layer[navigation_pc].visible, false); tween(layer[navigation_pc].alpha, 0 ); tween(layer[navigation_pc].zorder, 0 );
+		set(layer[navigation_mo].visible, false); tween(layer[navigation_mo].alpha, 0 );tween(layer[navigation_mo].zorder, 0 );
+	</action>
+
+	<style name="cover" width="100%" height="100%" />
+	<!-- resize -->
+	<events onresize="handle_different_window_sizes();" />
+	<action name="handle_different_window_sizes">
+		if(stagewidth LT 768, set(size_mode, 'mo'), set(size_mode, 'pc'));
+		if(size_mode != last_size_mode,
+			copy(last_size_mode, size_mode);
+			if(size_mode == 'mo',
+				set(layer[navigations_pc].visible, false); tween(layer[navigations_pc].alpha, 0 );
+				set(layer[navigation_pc].visible, false); tween(layer[navigation_pc].alpha, 0 );
+				set(layer[navigations_mo].visible, true); tween(layer[navigations_mo].alpha, 1 );
+				,
+				removelayer(navigation_bg);
+				set(layer[navigations_mo].visible, false); tween(layer[navigations_mo].alpha, 0 );
+				set(layer[navigation_mo].visible, false); tween(layer[navigation_mo].alpha, 0 );
+				set(layer[navigations_pc].visible, true); tween(layer[navigations_pc].alpha, 1 );
+			);
+		);
+	</action>
+
+	<style name="hoverImage"
+		   capture="false" handcursor="false"
+		   fillcolor="0xffff00" fillalpha="0.30"
+		   bordercolor="0xffff00" borderalpha="0.80"
+		   onover="tween(scale, 1.1, 0.25);"
+		   onout="tween(scale, 1.0, 0.25);"
+		   ondown.touch="onover(); asyncloop(pressed, onhover(); );"
+		   onup.touch="onout();"
+	/>
+
+	<!-- scene1 -->
+	<scene name="scene_view01" title="view01" onstart="" thumburl="panos/view01.tiles/thumb.jpg" lat="" lng="" heading="">
+		<control bouncinglimits="calc:image.cube ? true : false" />
+		<view hlookat="289.7" vlookat="0.0" fovtype="MFOV" fov="120" maxpixelzoom="2.0" fovmin="70" fovmax="140" limitview="auto" />
+		<preview url="panos/view01.tiles/preview.jpg" />
+		<image prealign="0|289.7|0">
+			<cube url="panos/view01.tiles/pano_%s.jpg" />
+		</image>
+		<hotspot name="spot1" style="skin_hotspotstyle" url="images/arrow_to_back.png" ath="94.923" atv="4.966" linkedscene="scene_view02" />
+		<hotspot name="spot2" style="skin_hotspotstyle" url="images/arrow_to_back.png" ath="-60.573" atv="-9.203" linkedscene="scene_view03" />
+
+
+		<!--pc navigation -->
+		<layer name="navigations_pc" url="images/Navigation.png" align="leftbottom" x="36" y="36" zorder="1" onclick="openBox();" />
+		<layer name="navigation_pc" url="images/Navigation.png" align="leftbottom" x="36" y="36" zorder="4" alpha="0" visible="false" onclick="closeBox();" >
+			<layer name="pc_01" url="images/thumb04.jpg" handcursor="true" zorder="4" align="centertop" y="-606" onclick="looktospot();" pos1="80" pos2="90" style="hoverImage" />
+			<layer name="pc_02" url="images/thumb05.jpg" handcursor="true" zorder="4" align="centertop" y="-450" onclick="looktospot();" pos1="-70" pos2="100" style="hoverImage" />
+		</layer>
+
+		<!-- mobile navigation -->
+		<layer name="navigations_mo" url="images/Navigation.png" align="lefttop" x="16" y="16" zorder="1" onclick="openBox();" />
+		<layer name="navigation_mo" type="container" align="lefttop" alpha="0" visible="false" style="cover">
+			<layer name="close_btn_mo" url="images/Navigation.png" zorder="4" align="lefttop" x="16" y="16" onclick="closeBox();" />
+			<layer name="mo_01" url="images/thumb04.jpg" handcursor="true" zorder="4" align="centertop" y="96" onclick="looktospot();" pos1="-30" pos2="110" />
+			<layer name="mo_02" url="images/thumb05.jpg" handcursor="true" zorder="4" align="centertop" y="230" onclick="looktospot();" pos1="-240" pos2="100" />
+		</layer>
+
+	</scene>
+
+
+	<action name="looktospot">
+		removelayer(navigation_bg);
+		set(layer[navigation_pc].visible, false); tween(layer[navigation_pc].alpha, 0 ); tween(layer[navigation_pc].zorder, 0 );
+		set(layer[navigation_mo].visible, false); tween(layer[navigation_mo].alpha, 0 );tween(layer[navigation_mo].zorder, 0 );
+		zoomto(120, smooth(120,10,100));
+		lookto(get(pos1),0,get(pos2), smooth(120,10,100));
+		<!-- looktohotspot(get(name), 95, smooth(120,10,100)); -->
+	</action>
+
+	<!-- scene2 -->
+	<scene name="scene_view02" title="view02" onstart="" thumburl="panos/view04.tiles/thumb.jpg" lat="" lng="" heading="">
+		<control bouncinglimits="calc:image.cube ? true : false" />
+		<view hlookat="0.0" vlookat="0.0" fovtype="MFOV" fov="120" maxpixelzoom="2.0" fovmin="70" fovmax="140" limitview="auto" />
+		<preview url="panos/view04.tiles/preview.jpg" />
+		<image prealign="0|289.7|0">
+			<cube url="panos/view04.tiles/pano_%s.jpg" />
+		</image>
+		<hotspot name="spot3" style="skin_hotspotstyle" url="images/arrow_to_front.png" ath="-134.535" atv="4.210" linkedscene="scene_view01" />
+	</scene>
+
+	<!-- scene3 -->
+	<scene name="scene_view03" title="view03" onstart="" thumburl="panos/view04.tiles/thumb.jpg" lat="" lng="" heading="">
+		<control bouncinglimits="calc:image.cube ? true : false" />
+		<view hlookat="0.0" vlookat="0.0" fovtype="MFOV" fov="120" maxpixelzoom="2.0" fovmin="70" fovmax="140" limitview="auto" />
+		<preview url="panos/view05.tiles/preview.jpg" />
+		<image prealign="0|289.7|0">
+			<cube url="panos/view05.tiles/pano_%s.jpg" />
+		</image>
+		<hotspot name="spot4" style="skin_hotspotstyle" url="images/arrow_to_front.png" ath="85.148" atv="-7.079" linkedscene="scene_view01" />
+	</scene>
+
+
+
+</krpano>
