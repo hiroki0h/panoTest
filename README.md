@@ -1,1 +1,1 @@
-http://hiroki0htest.dothome.co.kr/krpano/tour.html
+https://hiroki0h.dothome.com/panoTest/tour.html
